@@ -1,8 +1,14 @@
-import 'package:chat/pages/register_page.dart';
+import 'package:chat/pages/chat_page.dart';
+import 'package:chat/providers/chat.dart';
 import 'package:chat/routes/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => ChatProvider()),
+  ], child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -10,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Material App',
-      initialRoute: RegisterPage.routeName,
+      initialRoute: ChatPage.routeName,
       routes: appRoutes,
     );
   }
