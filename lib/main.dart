@@ -1,12 +1,12 @@
-import 'package:chat/pages/chat_page.dart';
-import 'package:chat/providers/chat.dart';
+import 'package:chat/pages/loading_page.dart';
 import 'package:chat/routes/routes.dart';
+import 'package:chat/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (_) => ChatProvider()),
+    ChangeNotifierProvider(create: (_) => AuthService()),
   ], child: MyApp()));
 }
 
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Material App',
-      initialRoute: ChatPage.routeName,
+      initialRoute: LoadingPage.routeName,
       routes: appRoutes,
     );
   }
