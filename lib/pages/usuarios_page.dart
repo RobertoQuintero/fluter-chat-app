@@ -1,5 +1,8 @@
 import 'package:chat/models/usuario.dart';
 import 'package:chat/services/auth_service.dart';
+import 'package:chat/services/chat_service.dart';
+import 'package:chat/services/socket_service.dart';
+import 'package:chat/services/usuarios_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,21 +14,23 @@ class UsuariosPage extends StatefulWidget {
 }
 
 class _UsuariosPageState extends State<UsuariosPage> {
-  final usuarios = [
-    Usuario(uid: '1', nombre: 'María', email: 'test@test.com', online: true),
-    Usuario(uid: '2', nombre: 'Carlos', email: 'test1@test.com', online: false),
-    Usuario(uid: '3', nombre: 'Andrea', email: 'test2@test.com', online: true),
-  ];
+  final usuariosService = UsuariosService();
+  List<Usuario> usuarios = [];
+  @override
+  void initState() {
+    this._cargarUsuarios();
+    super.initState();
+  }
 
   Future _cargarUsuarios() async {
-    await Future.delayed(Duration(seconds: 3), () {
-      print('hello');
-    });
+    this.usuarios = await usuariosService.getUsuarios();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     final usuario = authService.usuario;
     return Scaffold(
         appBar: AppBar(
@@ -39,6 +44,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
             icon: Icon(Icons.exit_to_app, color: Colors.black54),
             onPressed: () {
               //desconectarnos del socket
+              socketService.disconnect();
               AuthService.deleteToken();
               Navigator.pushReplacementNamed(context, 'login');
             },
@@ -46,7 +52,9 @@ class _UsuariosPageState extends State<UsuariosPage> {
           actions: [
             Container(
                 margin: EdgeInsets.only(right: 10),
-                child: Icon(Icons.check_circle, color: Colors.blue[400]))
+                child: socketService.serverStatus == ServerStatus.Online
+                    ? Icon(Icons.check_circle, color: Colors.blue[400])
+                    : Icon(Icons.offline_bolt, color: Colors.red))
           ],
         ),
         body: RefreshIndicator(
@@ -83,6 +91,10 @@ class _UsuarioListTile extends StatelessWidget {
             color: usuario.online ? Colors.green : Colors.red,
             borderRadius: BorderRadius.circular(50)),
       ),
+      onTap: () {
+        Provider.of<ChatService>(context, listen: false).usuarioPara = usuario;
+        Navigator.pushNamed(context, 'chat');
+      },
     );
   }
 }
